@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Player</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="src/scss/style.css" media="all">
+</head>
+<body>
+  <main>
+    <section class="download" id="sectionDownload">
+      <h1 class="download__title">Скачать видео с Ютуба</h1>
+      <div class="container">
+        <div class="download-form">
+          <input type="text" class="download-form__input" id="urlInput" placeholder="Вставь ссылку YouTube..." />
+          <button type="button" id="downloadBtn" class="download-form__btn button">Скачать</button>
+        </div>
+
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-bar__fill"></div>
+          <div class="progress-bar__box hidden" id="progressBox">
+            <p class="progress-bar__description">
+              Дождитесь окончания скачивания, не перегружайте браузер:<br>
+              <span id="progressText" class="progress-bar__text"></span>
+            </p>
+          </div>
+        </div>
+        
+        <p class="download-form__error hidden" id="urlError">Тестовый текст</p>
+
+      </div>
+    </section>
+
+    <section class="list" id="sectionList">
+      <div class="container">
+        <h2 class="list__title">Список доступных видео</h2>
+
+        <div class="table">
+          <div class="table-row table-header">
+            <span class="table-row__item">Название</span>
+            <span class="table-row__item">Длительность</span>
+            <span class="table-row__item">SRT</span>
+            <span class="table-row__item">RU.SRT</span>
+            <span class="table-row__item">RU.MP3</span>
+            <span class="table-row__item">Удалить</span>
+          </div>
+          <div class="table__loader">
+            <span class="loader hidden" id="tableLoader"></span>
+          </div>
+
+          <div class="table-body" id="tableBody">
+            <!-- строки с данными -->
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="player hidden" id="sectionPlayer">
+      <div class="vertical-line"></div>
+      <div class="container player__container">
+        <button type="button" id="backBtn" class="player__back button"></button>
+        <video id="video" class="player__video" controls>
+          <source id="videoSource" src="" type="video/webm" />
+        </video>
+        <div class="player-info">
+          <div class="player-info__btns">
+            <div class="player-info__item">
+              <p class="player-info__item--label">Субтитры</p>
+              <button type="button" id="subtitlesBtn" class="player-info__item--btn button hidden">создать</button>
+              <button type="button" id="translateBtn" class="player-info__item--btn button hidden">перевести</button>
+              <button type="button" id="toggleSubtitlesBtn" class="player-info__item--btn button hidden">показать</button>
+              <button type="button" id="deleteSubtitlesBtn" class="player-info__item--btn button hidden">удалить</button>
+            </div>
+            <div class="player-info__item">
+              <p class="player-info__item--label">Озвучить</p>
+              <p id="ttsDesc" class="player-info__item--desc">Для озвучевания субтитров должны быть созданы субтитры на русском языке</p>
+              <button type="button" id="ttsBtn" class="player-info__item--btn button hidden">включить</button>
+            </div>
+          </div>
+
+          <div class="player-info__wrap">
+            <!-- статус операции -->
+            <div class="player-info__status hidden" id="playerStatus">
+              <span class="loader" id="playerLoader"></span>
+              <span id="playerStatusText">Подготовка...</span>
+            </div>
+
+            <!-- управление аудио -->
+            <div id="audioControls" class="audio-controls hidden">
+              <audio id="ttsAudio"></audio>
+              <p class="audio-controls__recomendation">Рекомендованная скорость <span id="audioSpeedRecommendation">1.0x</span></p>
+              <div class="audio-controls__item">
+                <span class="audio-controls__label">Громкость</span>
+                <input type="range" id="audioVolume" class="audio-controls__range"
+                  min="0" max="1" step="0.05" value="1" />
+                <span id="audioVolumeValue">100%</span>
+              </div>
+              <div class="audio-controls__item">
+                <span class="audio-controls__label">Скорость</span>
+                <input type="range" id="audioSpeed" class="audio-controls__range"
+                  min="0.5" max="2" step="0.05" value="1" />
+                <span id="audioSpeedValue">1.0x</span>
+              </div>
+              <div class="audio-controls__item audio-controls__item--btns">
+                <button type="button" id="audioStopBtn" class="button">Стоп</button>
+                <button type="button" id="audioPauseBtn" class="button">Пауза</button>
+                <button type="button" id="audioResyncBtn" class="button">Синхронизировать</button>
+              </div>
+            </div>
+
+            <!-- субтитры -->
+            <div id="subtitles" class="player__subtitles hidden"></div>
+          </div>
+            
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <script type="module" src="dist/js/main.js"></script>
+</body>
+</html>

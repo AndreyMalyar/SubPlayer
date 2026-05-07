@@ -1,0 +1,92 @@
+# YouTube Video Player с субтитрами и озвучкой
+
+> Пет-проект: полный стек от backend до frontend, локальный AI pipeline без облачных зависимостей.
+
+Локальное веб-приложение для скачивания YouTube видео, автоматической генерации субтитров, перевода на русский и озвучки.
+
+## Что умеет
+
+- Скачивает видео с YouTube через yt-dlp
+- Генерирует субтитры через Faster-Whisper (локально, без интернета)
+- Переводит субтитры на русский через LibreTranslate
+- Озвучивает переведённые субтитры через edge-tts (Microsoft Neural голос)
+- Синхронизирует аудио озвучки с видео
+
+## Стек
+
+- **Backend:** Kotlin + Ktor
+- **Frontend:** TypeScript (vanilla)
+- **Speech-to-text:** Faster-Whisper-XXL
+- **Перевод:** LibreTranslate (Docker)
+- **TTS:** edge-tts через FastAPI (Docker)
+- **Видео:** yt-dlp + ffmpeg
+
+## Требования
+
+- JDK 17+
+- Docker Desktop
+- yt-dlp (в PATH)
+- ffmpeg (в PATH)
+- Faster-Whisper-XXL (в папке `whisper/`)
+
+## Установка и запуск
+
+**1. Клонируй репозиторий:**
+```bash
+git clone https://github.com/ваш-логин/ktor-hello.git
+cd ktor-hello
+```
+
+**2. Запусти Docker сервисы:**
+```bash
+docker-compose up -d
+```
+Это запустит LibreTranslate (порт 5000) и edge-tts сервис (порт 5001).
+
+**3. Запусти Kotlin сервер:**
+```bash
+./gradlew run
+```
+
+**4. Открой в браузере:**
+```
+http://localhost:8080
+```
+
+## Структура проекта
+
+```
+SubPlayer/
+├── src/                    # Kotlin backend
+├── static/                 # Frontend (TypeScript)
+│   ├── src/js/components/  # Модули TS
+│   └── dist/               # Скомпилированный JS
+├── videos/                 # Скачанные видео и субтитры
+├── whisper/                # Faster-Whisper-XXL
+├── edge-tts-service/       # Python FastAPI сервис
+└── docker-compose.yml
+```
+
+## Использование
+
+1. Вставь ссылку YouTube → нажми **Скачать**
+2. В списке видео нажми на название → откроется плеер
+3. Нажми **создать** субтитры → Whisper транскрибирует аудио
+4. Нажми **перевести** → LibreTranslate переведёт на русский
+5. Нажми **создать** озвучку → edge-tts озвучит каждую фразу
+6. Нажми **включить** → слушай озвучку синхронно с видео
+
+## Технические решения
+
+- **SSE вместо WebSocket** — для стриминга прогресса достаточно однонаправленного потока
+- **Модульный TypeScript** — разбит на `api`, `state`, `player`, `subtitles`, `download`
+- **Range requests** — для корректной перемотки видео и аудио
+- **Построчная генерация TTS** — каждая фраза генерируется отдельно с подгонкой скорости через `atempo`, затем склеивается через ffmpeg
+- **Docker для AI сервисов** — LibreTranslate и edge-tts изолированы в контейнерах
+- **Path traversal защита** — проверка `canonicalFile` при удалении файлов
+
+## Заметки
+
+- Первый запуск LibreTranslate долгий — скачивает языковые модели
+- Для длинных видео генерация озвучки занимает несколько минут
+- Рекомендованная скорость показывается автоматически

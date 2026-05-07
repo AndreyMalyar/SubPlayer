@@ -1,0 +1,13 @@
+services:
+  libretranslate:
+    image: libretranslate/libretranslate
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    command: --load-only en,ru
+
+  edge-tts:
+    build: ./edge-tts-service
+    ports:
+      - "5001:5001"
+    restart: unless-stopped

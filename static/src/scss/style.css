@@ -1,0 +1,373 @@
+.download {
+  margin-bottom: 40px;
+}
+.download__title {
+  text-align: center;
+  margin: 30px 0 20px;
+  color: #999;
+  font-family: "Merienda", cursive;
+  font-size: 30px;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.2;
+}
+.download-form {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  width: 80%;
+  margin: 0 auto;
+}
+.download-form__input {
+  width: 80%;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 10px;
+  background-color: #eee;
+}
+.download-form__input:focus {
+  outline: 1px solid #ddd;
+}
+.download-form__input:disabled {
+  color: #ddd;
+}
+.download-form__btn {
+  padding: 0 10px;
+}
+.download-form__error {
+  font-size: 14px;
+  color: brown;
+}
+.download .progress-bar {
+  margin-top: 20px;
+  width: 100%;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  position: relative;
+}
+.download .progress-bar__fill {
+  height: 100%;
+  width: 0;
+  background: #c0392b;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.download .progress-bar__box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+.download .progress-bar__description {
+  font-size: 14px;
+}
+.list {
+  padding-top: 40px;
+}
+.list__title {
+  text-align: center;
+}
+
+.table {
+  width: 80%;
+  margin: 10px auto;
+}
+.table-header {
+  font-width: 600;
+  font-size: 14px;
+}
+.table__loader {
+  width: 100%;
+  height: 3px;
+  margin: 8px 0 4px;
+  position: relative;
+  background: #293133;
+}
+.table-body {
+  user-select: none;
+}
+.table-body__label {
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.table-body__label:hover {
+  color: brown;
+}
+.table-body__del {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.table-body__del:hover {
+  background-color: brown;
+}
+.table-body__del:hover .icon__close {
+  fill: #fff;
+}
+.table-row {
+  display: grid;
+  grid-template-columns: 60% 2fr repeat(4, 1fr);
+  align-items: center;
+  padding: 6px 8px 6px;
+}
+.table-row:nth-child(even) {
+  background-color: #eee;
+}
+.table-row__item:not(:first-child) {
+  justify-self: center;
+}
+
+.loader {
+  width: 100%;
+  height: 3px;
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.loader::after {
+  content: "";
+  width: 192px;
+  height: 3px;
+  background: #dbd7d2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  animation: animloader 2s linear infinite;
+}
+
+@keyframes animloader {
+  0% {
+    left: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    left: 100%;
+    transform: translateX(0%);
+  }
+}
+:root {
+  --aside-width: 220px;
+}
+
+.vertical-line {
+  width: var(--aside-width);
+  height: 100vh;
+  background-color: #293133;
+  position: fixed;
+  z-index: -1;
+  left: calc((100% - 1200px) / 2 + 15px);
+  top: 0;
+}
+@media (max-width: 1200px) {
+  .vertical-line {
+    left: 15px;
+  }
+}
+
+.player {
+  --video-width: 80%;
+  --video-margin: calc((100% - var(--video-width)) / 2);
+}
+.player__container {
+  position: relative;
+}
+.player__back.button {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  padding: 0 5px;
+}
+.player__video {
+  width: var(--video-width);
+  display: block;
+  margin: 30px auto;
+  max-height: 500px;
+  background: black;
+}
+.player-info {
+  width: calc(var(--video-width) + var(--video-margin));
+  display: flex;
+  align-items: start;
+}
+.player-info__btns {
+  width: var(--aside-width);
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+.player-info__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.player-info__item--label {
+  width: 100%;
+  color: #fff;
+}
+.player-info__item--desc {
+  text-align: center;
+  font-size: 10px;
+  color: #ccc;
+}
+.player-info__wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 15px;
+}
+.player-info__status {
+  width: 100%;
+  position: relative;
+  font-size: 16px;
+  padding: 8px 0;
+  color: brown;
+}
+.player-info__status:before {
+  content: "";
+  width: 100%;
+  height: 2.5px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #293133;
+}
+.player__subtitles {
+  max-width: 700px;
+  font-size: 16px;
+}
+
+.audio-controls {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.audio-controls__recomendation {
+  width: 100%;
+  text-align: right;
+}
+.audio-controls__item {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  gap: 5px;
+  width: calc(50% - 5px);
+}
+.audio-controls__item--btns {
+  width: 100%;
+  justify-content: flex-start;
+}
+.audio-controls__range {
+  flex: 1;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  line-height: 1.2;
+  font-style: normal;
+  background-color: #dbd7d2;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 15px;
+  margin: 0 auto;
+}
+
+.button {
+  display: block;
+  font-weight: 600;
+  border: none;
+  padding: 6px 12px;
+  background-color: brown;
+  color: #fff;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+.button:hover {
+  background-color: #d53834;
+}
+.button:active {
+  background-color: brown;
+}
+.button:disabled {
+  background-color: #ddd;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.modal {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  border: 2px;
+  border-radius: 10px;
+  background-color: #dbd7d2;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%);
+  top: -500px;
+  transition: top 0.5s ease;
+  z-index: 999;
+}
+.modal.modal__active {
+  top: 100px;
+}
+.modal__title {
+  font-size: 18px;
+  color: brown;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  transition: 0.3s ease;
+  fill: #000;
+}
+.icon__check {
+  fill: green;
+}
+.icon__back {
+  width: 42px;
+  height: auto;
+  fill: #fff;
+}
