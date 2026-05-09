@@ -2,3 +2,4 @@ edge-tts
 fastapi
 uvicorn
 ffmpeg-python
+pydub

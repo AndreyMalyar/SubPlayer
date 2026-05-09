@@ -47,6 +47,12 @@ data class SubtitleEntry(val start: String, val end: String, val text: String)
 @Serializable
 data class TtsSyncedRequest(val subtitles: List<SubtitleEntry>, val voice: String )
 
+@Serializable
+data class ChunkItem(val audio_base64: String, val start_ms: Long)
+
+@Serializable
+data class MergeRequest(val chunks: List<ChunkItem>, val total_duration_ms: Long)
+
 fun Application.configureRouting() {
     routing {
         //статичные файлы фронтенда
@@ -353,6 +359,12 @@ fun Application.configureRouting() {
                 return entries
             }
 
+            fun srtTimeToMs(time: String): Long {
+                val (h, m, s) = time.replace(',', '.').split(':')
+                return (h.toLong() * 3600 + m.toLong() * 60 + s.toDouble().toLong()) * 1000 +
+                        ((s.toDouble() % 1) * 1000).toLong()
+            }
+
             val subtitles = parseSrt(ruSrtFile)
             val total = subtitles.size
             println("Parsed subtitles: $total")
@@ -367,9 +379,9 @@ fun Application.configureRouting() {
                 val client = HttpClient(CIO) {
                     install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) { json() }
                     install(HttpTimeout) {
-                        requestTimeoutMillis = 120_000  // 2 минуты
+                        requestTimeoutMillis = 30 * 60 * 1000L  // 30 минут
                         connectTimeoutMillis = 10_000
-                        socketTimeoutMillis = 120_000
+                        socketTimeoutMillis = 30 * 60 * 1000L
                     }
                 }
 
@@ -394,28 +406,27 @@ fun Application.configureRouting() {
                         flush()
                     }
 
-                    // Склеиваем через ffmpeg
-                    val listFile = File(tempDir, "list.txt")
-                    listFile.writeText(
-                        (0 until total).joinToString("\n") {
-                            // ← заменить обратные слэши на прямые
-                            "file '${tempDir.absolutePath.replace("\\", "/")}/chunk_${String.format("%04d", it)}.mp3'"
-                        }
-                    )
+                    // Считываем total_duration_ms из последнего субтитра
+                    val totalDurationMs = srtTimeToMs(subtitles.last().end)
+                    println("Total duration: ${totalDurationMs}ms")
 
-                    println("Merging $total chunks...")
-                    val process = ProcessBuilder(
-                        "cmd", "/c", "ffmpeg", "-y",
-                        "-f", "concat", "-safe", "0",
-                        "-i", listFile.absolutePath,
-                        "-c", "copy",
-                        mp3File.absolutePath
-                    ).redirectErrorStream(true).also {
-                        it.redirectOutput(ProcessBuilder.Redirect.INHERIT) // ← логи ffmpeg в консоль
-                    }.start()
-                    val exitCode = process.waitFor()
+                    // Собираем список чанков с таймингами для overlay
+                    val chunks = subtitles.mapIndexed { index, subtitle ->
+                        val chunkFile = File(tempDir, "chunk_${String.format("%04d", index)}.mp3")
+                        ChunkItem(
+                            audio_base64 = java.util.Base64.getEncoder().encodeToString(chunkFile.readBytes()),
+                            start_ms = srtTimeToMs(subtitle.start)
+                        )
+                    }
+
+                    // Отправляем в Python для сборки через overlay
+                    println("Merging $total chunks via overlay...")
+                    val mergeResponse = client.post("http://localhost:5001/tts-merge") {
+                        contentType(ContentType.Application.Json)
+                        setBody(MergeRequest(chunks = chunks, total_duration_ms = totalDurationMs))
+                    }
+                    mp3File.writeBytes(mergeResponse.readRawBytes())
                     println("MP3 saved: ${mp3File.absolutePath}")
-                    println("FFmpeg exit code: $exitCode")
 
                     // Чистим временные файлы
                     tempDir.deleteRecursively()

@@ -5,6 +5,8 @@ import tempfile
 import os
 import subprocess
 import json
+from pydub import AudioSegment
+import base64
 
 app = FastAPI()
 
@@ -32,30 +34,54 @@ async def tts_synced(data: dict):
         "ffprobe", "-v", "quiet", "-print_format", "json",
         "-show_format", tmp.name
     ], capture_output=True, text=True)
-
     tts_duration = float(json.loads(probe.stdout)["format"]["duration"])
-    # Подгоняем скорость под длину субтитра
-    ratio = tts_duration / duration
-    ratio = max(0.5, min(ratio, 2.0))
 
     output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
     output.close()
 
-    # Только atempo — никакого adelay!
-    if ratio > 1:
-        # ускоряем
+    if tts_duration > duration:
+        # ускоряем - не помещается в отрезок
+        ratio = tts_duration / duration
+        ratio = min(ratio, 2.0) # atempo максимум 2.0
         cmd = [
             "ffmpeg", "-y", "-i", tmp.name,
             "-filter:a", f"atempo={ratio:.4f}",
             output.name
         ]
     else:
-        # нормальная скорость + тишина до нужной длины
+        # нормальная скорость
         cmd = [
             "ffmpeg", "-y", "-i", tmp.name,
-            "-filter:a", f"apad=whole_dur={duration:.4f}",
+            "-c:a", "copy",
             output.name
         ]
+
     subprocess.run(cmd, check=True)
     os.unlink(tmp.name)
+    return FileResponse(output.name, media_type="audio/mpeg")
+
+@app.post("/tts-merge")
+async def tts_merge(data: dict):
+    chunks = data.get("chunks", [])
+    total_duration_ms = data.get("total_duration_ms", 0)
+
+    # Создаем пустую дорожку на всю длину видео
+    timeline = AudioSegment.silent(duration=total_duration_ms)
+
+    for chunk in chunks:
+        audio_bytes = base64.b64decode(chunk["audio_base64"])
+        start_ms = chunk["start_ms"]
+
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        tmp.write(audio_bytes)
+        tmp.close()
+
+        audio = AudioSegment.from_mp3(tmp.name)
+        timeline = timeline.overlay(audio, position=start_ms)
+        os.unlink(tmp.name)
+
+    # Сохраняем результат
+    output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+    output.close()
+    timeline.export(output.name, format="mp3")
     return FileResponse(output.name, media_type="audio/mpeg")
